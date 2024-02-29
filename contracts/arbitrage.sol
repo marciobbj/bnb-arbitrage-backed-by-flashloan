@@ -18,38 +18,9 @@ contract ArbitrageBNB is FlashLoanReceiverBase {
 
     constructor(address _pancakeFactory, address _bakeryRouter) public {
         pancakeFactory = _pancakeFactory;
-        bakeryRouter = IUniswapV2Router02(_bakeryRouter)
-        defi = _defi;
+        bakeryRouter = IUniswapV2Router02(_bakeryRouter);
     }
 
-    function executeOperation(
-        address _reserve,
-        uint256 _amount,
-        uint256 _fee,
-        bytes calldata _params
-    ) external {
-        require(
-            _amount <= getBalanceInternal(address(this), _reserve),
-            "Invalid balance, was the flashLoan successful?"
-        );
-
-        //
-        // Your logic goes here.
-        // !! Ensure that *this contract* has enough of `_reserve` funds to payback the `_fee` !!
-        //
-
-        IDefi app = IDefi(defi);
-        // Todo: Deposit into defi smart contract
-        app.depositBNB.value(_amount)(_amount);
-        
-        // Todo: Withdraw from defi smart contract
-        app.withdraw(_amount);
-
-
-        uint256 totalDebt = _amount.add(_fee);
-        transferFundsBackToPoolInternal(_reserve, totalDebt);
-    }
-    
     function startArbitrage(
         address token0,
         address token1,
@@ -75,11 +46,11 @@ contract ArbitrageBNB is FlashLoanReceiverBase {
         address[] memory path = new address[](2)
         uint amountToken = _amount0 == 0 ? _amount1 : _amount0;
 
-        address token0 = IUniswapV2Pair(msg.sender).token0()
-        address token1 = IUniswapV2Pair(msg.sender).token1() 
+        address token0 = IUniswapV2Pair(msg.sender).token0();
+        address token1 = IUniswapV2Pair(msg.sender).token1(); 
 
         require(msg.sender == UniswapV2Library.pairFor(pancakeFactory, token0, token1), 'Unauthorized');
-        require(_amount0 == 0 || _amount1 == 0)
+        require(_amount0 == 0 || _amount1 == 0);
 
         IERC20 token = IERC20(_amount0 == 0 ? token1: token0);
 
@@ -97,19 +68,9 @@ contract ArbitrageBNB is FlashLoanReceiverBase {
             deadline
         )[1];
 
-        IERC20 otherToken = IERC20(_amount0 == 0 ? token0 : token1)
+        IERC20 otherToken = IERC20(_amount0 == 0 ? token0 : token1);
         otherToken.transfer(msg.sender, amountRequired);
-        otherToken.transfer(tx.origin, amountReceived - amountRequired)
+        otherToken.transfer(tx.origin, amountReceived - amountRequired);
 
     }
-
-    function flashloanBnb(uint256 _amount) public  {
-        bytes memory data = "";
-       
-        ILendingPool lendingPool = ILendingPool(
-            addressesProvider.getLendingPool()
-        );
-        lendingPool.flashLoan(address(this), BNB_ADDRESS, _amount, data);
-    }
-    
 }
