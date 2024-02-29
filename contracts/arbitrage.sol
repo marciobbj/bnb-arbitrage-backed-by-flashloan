@@ -4,12 +4,17 @@ import "./interfaces/FlashLoanReceiverBase.sol";
 import "./interfaces/ILendingPoolAddressesProvider.sol";
 import "./interfaces/ILendingPool.sol";
 import "./interfaces/IDefi.sol";
+import "./interfaces/IUniswapV2Router02.sol";
+import "./interfaces/IUniswapV2Pair.sol";
+import "./interfaces/IPancakeCallee.sol";
+import "./interfaces/IERC20.sol";
 
 
 contract ArbitrageBNB is FlashLoanReceiverBase {
 
     address public constant BNB_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address public defi;
+    IUniswapV2Router02 public bakeryRouter;
 
     constructor(ILendingPoolAddressesProvider _addressesProvider, address _defi)
         public
