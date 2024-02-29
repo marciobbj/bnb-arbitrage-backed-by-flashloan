@@ -13,7 +13,7 @@ import "./interfaces/IERC20.sol";
 contract ArbitrageBNB is FlashLoanReceiverBase {
 
     address public constant pancakeFactory;
-    address public defi;
+    uint constant deadline = 10 days;
     IUniswapV2Router02 public bakeryRouter;
 
     constructor(address _pancakeFactory, address _bakeryRouter) public {
